@@ -1,0 +1,6 @@
+@InfotecsTest_HostAddress = http://localhost:5051
+
+GET {{InfotecsTest_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
