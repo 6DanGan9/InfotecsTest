@@ -1,3 +1,7 @@
+using InfotecsTest.Data;
+using Microsoft.AspNetCore.OData;
+using Microsoft.EntityFrameworkCore;
+
 namespace InfotecsTest
 {
     public class Program
@@ -6,26 +10,32 @@ namespace InfotecsTest
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            var cofigBuild = new ConfigurationBuilder()
+                .SetBasePath(builder.Environment.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddEnvironmentVariables();
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
+
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            builder.Services.AddControllersWithViews()
+                .AddOData(options => options
+                .Select().Filter().OrderBy().Expand().Count());
+
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
 
-            app.UseHttpsRedirection();
+            app.UseStaticFiles();
 
-            app.UseAuthorization();
-
+            app.UseRouting();
 
             app.MapControllers();
 
