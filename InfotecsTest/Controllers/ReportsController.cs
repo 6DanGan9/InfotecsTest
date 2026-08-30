@@ -2,8 +2,10 @@
 using InfotecsTest.Model;
 using InfotecsTest.Services.Values.Abstract;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace InfotecsTest.Controllers
 {
@@ -98,7 +100,6 @@ namespace InfotecsTest.Controllers
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 100)
         {
-            _logger.LogInformation("Выйди, мудила");
             var query = _context.Values.AsQueryable();
 
             if (from.HasValue)
@@ -115,6 +116,26 @@ namespace InfotecsTest.Controllers
                 .ToListAsync();
 
             Response.Headers.Append("X-Total-Count", total.ToString());
+
+            return Ok(data);
+        }
+
+        // Дополнительный метод для получения данных
+        [HttpGet("lastMeasurements")]
+        public async Task<ActionResult<IEnumerable<Value>>> GetLastMeasurements(
+            [FromQuery] string fileName)
+        {
+            var query = _context.Values.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(fileName))
+                query = query.Where(m => m.Report!.FileName == fileName);
+
+            var total = await query.CountAsync();
+            var data = await query
+                .OrderBy(m => m.Date)
+                .Skip(total > 10? total - 10 : 0)
+                .Take(10)
+                .ToListAsync();
 
             return Ok(data);
         }
