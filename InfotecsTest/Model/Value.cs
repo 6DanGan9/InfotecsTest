@@ -1,8 +1,10 @@
 ﻿using InfotecsTest.Model.Abstract;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace InfotecsTest.Model
 {
+    [Table("Values")]
     [Display(Name = "Результат мониторинга")]
     public class Value : BaseMeasurement
     {
