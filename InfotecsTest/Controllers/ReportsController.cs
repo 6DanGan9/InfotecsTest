@@ -58,12 +58,15 @@ namespace InfotecsTest.Controllers
             {
                 return BadRequest(ex.Message);
             }
+
             // Сохраняем в базу данных
             await using var transaction = await _context.Database.BeginTransactionAsync();
 
+            //Удаляем старую вырсию записи файла
+            await _context.ValuesReports.Where(r => r.FileName == file.FileName).ExecuteDeleteAsync();
+
             try
             {
-
                 // Используем BulkInsert для производительности (если много записей)
                 if (report.Measurements.Count() > 1000)
                 {
