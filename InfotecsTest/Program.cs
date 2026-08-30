@@ -1,12 +1,17 @@
+using CsvHelper;
 using InfotecsTest.Data;
+using InfotecsTest.Services.Abstract;
+using InfotecsTest.Services.Values;
+using InfotecsTest.Services.Values.Abstract;
 using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace InfotecsTest
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -15,7 +20,6 @@ namespace InfotecsTest
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddEnvironmentVariables();
 
-
             builder.Services.AddDbContext<AppDbContext>(options =>
                     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -23,7 +27,27 @@ namespace InfotecsTest
                 .AddOData(options => options
                 .Select().Filter().OrderBy().Expand().Count());
 
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(builder.Configuration)
+                .Enrich.FromLogContext()
+                .WriteTo.Console() 
+                .WriteTo.File(
+                    path: "logs/log-.txt", 
+                    rollingInterval: RollingInterval.Month, 
+                    retainedFileCountLimit: 31, 
+                    fileSizeLimitBytes: 10_000_000, 
+                    rollOnFileSizeLimit: true,
+                    shared: true,
+                    flushToDiskInterval: TimeSpan.FromSeconds(1)
+                )
+                .CreateLogger();
+
+            builder.Host.UseSerilog(); 
+
             builder.Services.AddSwaggerGen();
+
+            builder.Services.AddScoped<IValuesCsvParser, ValuesCsvParser>();
+            builder.Services.AddScoped<IValuesCsvMetricCalculator, ValuesCsvMetricCalculator>();
 
             var app = builder.Build();
 

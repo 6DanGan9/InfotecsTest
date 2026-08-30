@@ -1,14 +1,13 @@
 ﻿using InfotecsTest.Model;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace InfotecsTest.Data
 {
     public class AppDbContext : DbContext
     {
-        DbSet<Report> Reports { get; set; } = null!;
-        DbSet<Result> Results { get; set; } = null!;
-        DbSet<Value> Values { get; set; } = null!;
+        public DbSet<ValuesReport> ValuesReports { get; set; } = null!;
+        public DbSet<ValuesResult> Results { get; set; } = null!;
+        public DbSet<Value> Values { get; set; } = null!;
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

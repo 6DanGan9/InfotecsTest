@@ -1,30 +1,26 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using InfotecsTest.Model.Abstract;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace InfotecsTest.Model
 {
     [Display(Name = "Результат мониторинга")]
-    public class Value
+    public class Value : BaseMeasurement
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
         [Required]
         [Display(Name = "Время начала")]
-        public DateTime Date { get; set; }
+        public DateTimeOffset Date { get; set; }
         [Required]
         [Display(Name = "Длительность")]
         public TimeSpan ExecutionTime { get; set; }
         [Required]
         [Display(Name = "Значение")]
         public double Data { get; set; }
-        [JsonIgnore]
-        public Report Report { get; set; }
-        [Required]
-        [JsonIgnore]
-        [ForeignKey(nameof(Report))]
-        public Guid Report_Id { get; set; }
+
+        public Value(DateTimeOffset date, TimeSpan executionTime, double data)
+        {
+            Date = date;
+            ExecutionTime = executionTime;
+            Data = data;
+        }
     }
 }

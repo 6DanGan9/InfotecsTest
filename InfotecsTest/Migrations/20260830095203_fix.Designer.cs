@@ -3,6 +3,7 @@ using System;
 using InfotecsTest.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace InfotecsTest.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260830095203_fix")]
+    partial class fix
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,7 +66,12 @@ namespace InfotecsTest.Migrations
                         .HasMaxLength(127)
                         .HasColumnType("character varying(127)");
 
+                    b.Property<Guid>("Resutl_Id")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Resutl_Id");
 
                     b.ToTable("BaseReport");
 
@@ -105,7 +113,7 @@ namespace InfotecsTest.Migrations
                     b.Property<double>("Data")
                         .HasColumnType("double precision");
 
-                    b.Property<DateTimeOffset>("Date")
+                    b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<TimeSpan>("ExecutionTime")
@@ -143,7 +151,7 @@ namespace InfotecsTest.Migrations
                     b.Property<double>("MinValue")
                         .HasColumnType("double precision");
 
-                    b.Property<DateTimeOffset>("StartDate")
+                    b.Property<DateTime>("StartDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasDiscriminator().HasValue("ValuesResult");
@@ -160,10 +168,21 @@ namespace InfotecsTest.Migrations
                     b.Navigation("Report");
                 });
 
+            modelBuilder.Entity("InfotecsTest.Model.Abstract.BaseReport", b =>
+                {
+                    b.HasOne("InfotecsTest.Model.Abstract.BaseResult", "Result")
+                        .WithMany()
+                        .HasForeignKey("Resutl_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Result");
+                });
+
             modelBuilder.Entity("InfotecsTest.Model.Abstract.BaseResult", b =>
                 {
                     b.HasOne("InfotecsTest.Model.Abstract.BaseReport", "Report")
-                        .WithOne("Result")
+                        .WithOne()
                         .HasForeignKey("InfotecsTest.Model.Abstract.BaseResult", "Report_Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -174,8 +193,6 @@ namespace InfotecsTest.Migrations
             modelBuilder.Entity("InfotecsTest.Model.Abstract.BaseReport", b =>
                 {
                     b.Navigation("Measurements");
-
-                    b.Navigation("Result");
                 });
 #pragma warning restore 612, 618
         }

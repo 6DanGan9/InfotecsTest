@@ -1,22 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
+﻿using InfotecsTest.Model.Abstract;
+using System.ComponentModel.DataAnnotations;
 
 namespace InfotecsTest.Model
 {
     [Display(Name = "Результат мониторинга")]
-    public record Result
+    public record ValuesResult : BaseResult
     {
-        [Key]
-        [JsonIgnore]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public Guid Id { get; set; }
         [Required]
         [Display(Name = "Длительность мониторинга")]
         public TimeSpan Duration { get; set; }
         [Required]
         [Display(Name = "Момент начала мониторинга")]
-        public DateTime StartDate { get; set; }
+        public DateTimeOffset StartDate { get; set; }
         [Required]
         [Display(Name = "Средняя длительность")]
         public TimeSpan AverageExicutionTime { get; set; }
@@ -32,11 +27,17 @@ namespace InfotecsTest.Model
         [Required]
         [Display(Name = "Минимальное значение ")]
         public double MinValue { get; set; }
-        [JsonIgnore]
-        public Report Report { get; set; }
-        [Required]
-        [JsonIgnore]
-        [ForeignKey(nameof(Report))]
-        public Guid Report_Id { get; set; }
+
+        public ValuesResult(TimeSpan duration, DateTimeOffset startDate, TimeSpan averageExicutionTime,
+                            double averageValue, double medianValie, double maxValue, double minValue)
+        {
+            Duration = duration;
+            StartDate = startDate;
+            AverageExicutionTime = averageExicutionTime;
+            AverageValue = averageValue;
+            MedianValie = medianValie;
+            MaxValue = maxValue;
+            MinValue = minValue;
+        }
     }
 }
